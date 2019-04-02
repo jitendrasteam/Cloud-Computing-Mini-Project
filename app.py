@@ -121,7 +121,7 @@ def error405(error):
 ############     FILES   #######################
 @app.route('/uploads', methods=['GET', 'POST'])
 def upload_file():
-    if request.method == 'POST':
+    if request.method == 'POST' or request.method == 'GET':
         # check if the post request has the file part
         if 'file' not in request.files:
             flash('No file part')
@@ -141,7 +141,7 @@ def upload_file():
     return render_template("uploadPage.html")
 
 
-@app.route('/uploaded_file/<filename>', methods=["GET"])
+@app.route('/uploaded_file/<filename>', methods=["GET","POST"])
 def uploaded_file(filename):
     afile = session["username"]+"/"+filename
     return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], session["username"]),
@@ -150,4 +150,4 @@ def uploaded_file(filename):
 
 if __name__ == "__main__":
     app.secret_key = "interviewbot"
-    app.run(debug=True, port=8242)
+    app.run(debug=True, port=4219,threaded=True)
