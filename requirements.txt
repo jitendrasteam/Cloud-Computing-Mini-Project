@@ -1,0 +1,5 @@
+SQLAlchemy==1.1.13
+Werkzeug==0.12.2
+Flask==0.12.2
+passlib==1.7.1
+python_bcrypt==0.3.2
