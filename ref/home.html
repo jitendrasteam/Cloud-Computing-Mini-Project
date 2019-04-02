@@ -1,0 +1,126 @@
+{% extends "layout.html"%}
+{% block body %}
+<style>
+
+body {
+  overflow-x: hidden;
+}
+
+#sidebar-wrapper {
+  min-height: 100vh;
+  margin-left: -15rem;
+  -webkit-transition: margin .25s ease-out;
+  -moz-transition: margin .25s ease-out;
+  -o-transition: margin .25s ease-out;
+  transition: margin .25s ease-out;
+
+}
+
+#sidebar-wrapper .sidebar-heading {
+  padding: 0.875rem 1.25rem;
+  font-size: 1.2rem;
+}
+
+#sidebar-wrapper .list-group {
+  width: 15rem;
+  background:red;
+}
+
+#page-content-wrapper {
+  min-width: 100vw;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+  margin-left: 0;
+}
+
+@media (min-width: 768px) {
+  #sidebar-wrapper {
+    margin-left: 0;
+  }
+
+  #page-content-wrapper {
+    min-width: 0;
+    width: 100%;
+  }
+
+  #wrapper.toggled #sidebar-wrapper {
+    margin-left: -15rem;
+  }
+}
+
+.side1{
+color:black;
+background:white;
+}
+.side1container{
+color:black;
+background-image: linear-gradient(to right top, #490b8e, #510b99, #590aa4, #6208b0, #6b05bb);
+
+}
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 10%;
+}
+</style>
+  <div class="d-flex" id="wrapper">
+
+    <!-- Sidebar -->
+    <div class="side1container border-right" id="sidebar-wrapper">
+
+      <div class="list-group list-group-flush" style="background:red;">
+        <a href="#" class="list-group-item list-group-item-action side1container"></a>
+        <a href="/home" class="list-group-item list-group-item-action side1"><i class="fas fa-tachometer-alt"></i>
+
+&nbsp;&nbsp;Dashboard</a>
+        <a href="/" class="list-group-item list-group-item-action side1"><i class="fas fa-home"></i>
+
+ &nbsp;&nbsp;Home</a>
+        <a href="/chatbot" class="list-group-item list-group-item-action side1"><i class="fas fa-chalkboard-teacher"></i>
+
+&nbsp;&nbsp;Mock Interview</a>
+        <a href="/interview" class="list-group-item list-group-item-action side1"><i class="fas fa-users"></i>
+&nbsp;&nbsp;Interview Tips</a>
+        <a href="/resume" class="list-group-item list-group-item-action side1"><i class="fas fa-file"></i>
+
+&nbsp;&nbsp;Resume Tips</a>
+        <a href="/logout" class="list-group-item list-group-item-action side1"><i class="fas fa-sign-out-alt"></i>
+
+&nbsp;&nbsp;Logout</a>
+
+      </div>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    
+      <div class="container-fluid">
+   {% block home_content %}
+		<div class="card shadow-lg bg-white rounded" style="text-align:right;margin-top:3%;margin-right:3%;">
+  			<div class="card-body">
+				<span >
+					<b>Welcome {{ session.username }}</b>
+				</span>
+  			</div>
+		</div>
+	<br/>
+		<div class="card shadow-lg bg-white rounded" style="margin:2.5%;">
+  			<div class="card-body" style="margin:2.5%;padding:3%;font-weight:bold;">
+
+  <img class="center" src="{{ url_for('static',filename='images/icon.png') }}" alt="Card image cap" height="128px" width="50px">
+
+<br/>
+				Preparing for job interviews is very difficult. A lot of candidates are not prepared for the interviews and so they are not able to fetch their dream jobs. Mostly candidate's selection is based upon the answers given in the interview. People will definitely hire those candidates who show interest and positive attitude.  Using neural network we are proposing an application framework which would help candidates in preparing for the interviews. This involves neural network working  for predicting a section of an interview and providing real-time feedback and a report. Using CNN, emotional analysis is performed on the video stream and realtime updates on the emotion is provided by means of visualization, Candidate’s answers are evaluated based on their sentiments . Further, AIML is utilized for chat-bot interaction during the process. The chat-bot ask the questions to the candidate and candidate's response is recorded and analysis is done and a simple report is generated. All these together will try to prepare the candidate for the interview as a whole . 
+  			</div>
+		</div>
+   {% endblock %}
+      </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+
+  </div>
+  <!-- /#wrapper -->
+
+  
+{% endblock %}

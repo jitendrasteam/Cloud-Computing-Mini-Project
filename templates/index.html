@@ -1,0 +1,39 @@
+{% extends "layout.html"%} {% block body %}
+
+<style>
+  .box {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 700px 400px 0;
+    border-color: transparent #ff7104 transparent transparent;
+  }
+  .above {
+    margin-top: -2.5%;
+  }
+  .card_css{
+      color:white;
+      background-image: linear-gradient(to left bottom, #f20f0f, #f32d0f, #f53f10, #f64e13, #f75a16, #f86318, #fa6c1b, #fb741f, #fc7c22, #fd8325, #fe8b29, #ff922d);
+  }
+</style>
+<div class="container-fluid">
+    <br/>
+  <div class="row  " >
+      <br/>
+      <br/>
+    <div class="col-md-6">
+        <div class="card card_css">
+            <div class="card-title" style="margin-top:2%;margin-left:2%;">
+                    Cloud - Storage System
+            </div>
+            <div class="card-body">
+                    Providing a cloud based solution for staorage in form of Storage as a Service.</div>
+        </div>
+      
+    </div>
+    <div class="col-md-6 ">
+
+    </div>
+  </div>
+</div>
+{% endblock %}

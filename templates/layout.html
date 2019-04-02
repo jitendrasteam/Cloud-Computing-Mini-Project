@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap4.min.js') }}"></script> 
+<link href="{{ url_for('static',filename ='styles/bootstrap4.min.css') }}" rel="stylesheet">
+<link rel='stylesheet' href="{{ url_for('static',filename ='styles/all.css') }}">
+<link rel='stylesheet' href="{{ url_for('static',filename ='styles/icon.css') }}">
+
+
+<title></title>
+</head>
+<body>
+{% include  "includes/_navbar.html" %}
+<br/>
+<br/>
+<br/>
+{% include  "includes/_message.html" %}
+{% block body%}
+{% endblock %}
+
+
+</body>
+</html>

@@ -1,0 +1,226 @@
+<html>
+<head>
+<title>
+</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script>
+
+<style>
+body{
+background: rgb(2,0,36);
+background: linear-gradient(42deg, rgba(2,0,36,1) 0%, rgba(104,9,121,1) 33%, rgba(135,29,218,1) 68%, rgba(183,19,230,1) 88%, rgba(186,0,255,1) 100%);
+font-size:24px;
+color:white;
+}
+hr{
+background:white;
+}
+.element {
+	font-size:24px;
+	margin-top:3.5%;
+	margin-right:2%;
+	margin-left:2.5%;
+}
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+.display-4{
+color:#4a148c;
+padding:2.5%;
+background:white;
+font-size:30px;
+border-radius:30px;
+}
+
+.holder{
+color:#4a148c;
+padding:2.5%;
+background:white;
+font-size:25px;
+border-radius:30px;
+margin-right:2%;
+}
+.holder_lesspad{
+padding:0%;
+}
+</style>
+</head>
+<body>
+
+<br/>
+<div class="container-fluid element" style="margin-right:3%;"> <!-- container start -->
+  <h1 class="display-4" style="text-align:right;">
+	<b>Interview-bot : Report</b>
+	</h1> <!-- heading -->
+  <hr/>
+   <!-- message -->
+  <div class="holder">
+  <p>Congratulations!!!.. <span style="color:red">Your Report is generated</span></p>
+  <p style="margin-right:2%;">Dear {{session.username}},<br/><br/>
+   We hope you have came acroos various questions which could be asked based on the responses you provide during the interview process.<br/>
+We agree interviews may seem difficult, but once you get come to know how to answer in ther interview you can defintely crack any interview. This is a report generated based on the responses you gave during the mock interview. Don't get disheartned if you scored less there is always a room of improvement, and if you have scored great, that's awesome keep practising
+  <ps>
+  <p style="text-align:right;">Thank you</p>
+  <p style="text-align:right;">
+  <b>PROJECT - INTERVIEW BOT</b>
+  </p>
+</div>
+<br/>
+<br/>
+  <!--end message -->
+  <!--<div style="height:3%;"></div>-->
+  <hr/>
+  <!-- sentiment score -->
+  <h2>Your Sentiment Score</h2>
+  <br/>
+
+ <div class="row"><!-- start row -->
+  <div class="col holder">
+  <p>Overall sentiment during the interview process was : <b style="color:red">Neutral</b></p><br/>
+  <p>Keeping Neutral Sentiment is not a bad idea and it's way better than having a negative impression on the interviewer.
+A little more positive answers would definetly work for you, and you should try the same.</p>
+  </div>
+  <div class="col">
+   <div id="chartContainer" style="height: 300px; width: 400px;"></div>
+  </div>
+<br/>
+<br/>
+  </div><!-- end row -->
+<br/>
+<br/>
+  <hr/>
+<br/>
+<br/>
+<hr/>
+  <h2>Your Emotion Score</h2>
+  <div class="row">
+   <div class="col holder">
+  <p>Overall sentiment during the interview process was : <b style="color:red">Neutral</b></p><br/>
+  <p>Keeping Neutral Sentiment is not a bad idea and it's way better than having a negative impression on the interviewer.
+A little more positive answers would definetly work for you, and you should try the same.</p>
+   </div>
+   <div class="col">
+   <div id="chartContainer2" style="height: 300px; width: 400px;"></div>
+   </div>
+  </div>
+<br/>
+<br/>
+<hr/>
+<br/>
+
+<h2 class="holder">Your Interview Stats</h2>
+<div class="row" style="background:white;color:#4a148c;margin-left:5%;padding:3%;margin-top:1.5%;border:1px solid #4a148c;"><!-- start row -->
+  <div class="col">
+  <p>Total Duration of the interview</p><br/>
+  </div>
+  <div class="col">
+   <p>{{ totalDuration }}</p>
+  </div>
+  </div><!-- end row -->
+  <hr/>
+<div class="row"><!-- start row -->
+  <div class="col-md-3 holder holder_lesspad">
+  <p style="text-align:center;padding:0%;">Your Transcript</p>
+  </div>
+	<br/>
+  <div class="col-md-7 holder">
+   <div id="transcript">
+<ul style="padding-right:5%;">
+    {% for item in transcript %}
+        <li>
+		{% set item = item.split(':') %}
+		{% if item[0]=="IBot" %}
+		<span style="color:red;">{{ item[0] }}</span> - {{ item[1] }}
+		{% else %}
+			<span style="color:green;">{{ item[0] }}</span> - {{ item[1] }}
+{% endif %}
+
+		</li>
+
+    {% endfor %}
+</ul>
+	</div>
+<div class="col-md-2"></div>
+  </div>
+  </div><!-- end row -->
+  <hr/>
+<br/>
+<br/>
+<br/>
+<br/>
+</div> <!-- end container -->
+<footer style="margin-top:90%;background:white;color:#4a148c;padding:1%;"> Interview Bot </footer>
+<footer style="height:2%;"></footer>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+
+<script>
+window.onload = function () {
+	
+var chart = new CanvasJS.Chart("chartContainer", {
+	axisX:{
+		interval: 1
+	},
+	axisY2:{
+		interlacedColor: "rgba(1,77,101,.2)",
+		gridColor: "rgba(1,77,101,.1)",
+		title: "Sentiment score (in %)"
+	},
+	data: [{
+		type: "bar",
+		name: "companies",
+		axisYType: "secondary",
+		color: "green",
+		dataPoints: [
+			{ y: 0.89, label: "Positive" },
+			{ y: -0.8, label: "Negative" },
+			{ y: 0.5, label: "Neutral" },
+			
+		]
+	}]
+});
+chart.render();
+
+
+
+//sentiment done
+//emotion begin
+
+var chart2 = new CanvasJS.Chart("chartContainer2", {
+
+	title:{
+		text: "Emotion during interview",
+		horizontalAlign: "right"
+	},
+	data: [{
+		type: "doughnut",
+		startAngle: 60,
+		//innerRadius: 60,
+		indexLabelFontSize: 17,
+		indexLabel: "{label} - #percent%",
+		toolTipContent: "<b>{label}:</b> {y} (#percent%)",
+		dataPoints: [
+			{ y: 85, label: "Happy" },
+			{ y: 35, label: "Sad" },
+			{ y: 96, label: "Neutral" },
+			{ y: 7, label: "Fear"},
+			{ y: 15, label: "Disgust"},
+			{ y: 62, label: "Angry"}
+		]
+	}]
+});
+chart2.render();
+
+
+}
+</script>
+</body>
+</html>

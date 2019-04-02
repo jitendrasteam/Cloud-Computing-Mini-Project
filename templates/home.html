@@ -1,0 +1,80 @@
+{% extends "layout.html"%} {% block body %}
+<style>
+  .file_show {
+    padding: 5%;
+    color: #ff7104;
+    background: white;
+  }
+  .file_show a {
+    color: #ff7104;
+  }
+  .file_show:hover {
+    color: white;
+    padding: 6%;
+    background: #ff7104;
+  }
+  .file_show a:hover {
+    color: white;
+    padding: 6%;
+    background: #ff7104;
+  }
+</style>
+<div class="container-fluid">
+  <div class="row" style="height: 100%; ">
+    <div class="col-md-4">
+      <div
+        class="mh-100"
+        style=" height: 620px; background-color:white;padding:2%;overflow-y:scroll;"
+      >
+        <div class="card file_show">
+          File Lists Which You Uploaded
+        </div>
+        {% for file in files %}
+        <div class="card file_show">
+          <a href="{{url_for('uploaded_file',filename = file)}}">{{ file }}</a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-md-8">
+        <!-- Upload -->
+        <div class="card shadow-lg p-3 mb-5 bg-white rounded" style="padding:3%;">
+        <div class="card-title d-flex flex-row-reverse p-2">           
+            <h5>Upload a new file on our cloud</h5> 
+        </div>
+            <div class="card-body"> 
+            <form method=post enctype=multipart/form-data>
+                <input type=file name=file>
+                <br/>
+                <br/>
+                <input type=submit class="btn btn-success  d-flex flex-row-reverse " value=Upload>
+            </form>
+        </div>
+        
+    </div>
+            <!-- Storage and other Info-->
+
+    <div class="row">
+            <div class="col-md-6">
+                <div class="card shadow-lg p-3 mb-5 bg-white rounded" >
+                    <div class="card-title"><b>User Info</b><hr/></div>
+                        <div class="card-body">
+                            Your Username : {{session["username"]}}
+                        </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                    <div class="card shadow-lg p-3 mb-5 bg-white rounded" >
+                        <div class="card-title" ><b>Available Storage Space</b><hr/></div>
+                            <div class="card-body">
+                                You have used:<br/>
+                                <span class="font-weight-bolder" style="color:red"> {{storage_space}} </span>&nbsp;&nbsp; MB /&nbsp;&nbsp;<span class="font-weight-bolder" style="color:green">100 </span>MB
+                            </div>
+                        
+                    </div>
+                </div>
+        </div>
+  </div>
+</div>
+{% endblock %}
