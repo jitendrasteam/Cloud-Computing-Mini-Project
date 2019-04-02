@@ -32,10 +32,10 @@ def home():
         folder_size = 0
         for (path, dirs, files) in os.walk(folder):
             for file in files:
-            	filename = os.path.join(path, file)
-            	folder_size += os.path.getsize(filename)
-        storage_space=folder_size/(1024*1024.0)
-        return render_template("home.html", files=files,storage_space=storage_space)
+                filename = os.path.join(path, file)
+                folder_size += os.path.getsize(filename)
+        storage_space = folder_size/(1024*1024.0)
+        return render_template("home.html", files=files, storage_space=storage_space)
     abort(404)
 
 
@@ -124,24 +124,24 @@ def upload_file():
     if request.method == 'POST' or request.method == 'GET':
         # check if the post request has the file part
         if 'file' not in request.files:
-            flash('No file part')
+            flash('No file part', "danger")
             return redirect(request.url)
         file = request.files['file']
         # if user does not select file, browser also
         # submit an empty part without filename
         if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
+            flash('No selected file', "danger")
+            return redirect("home")
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             afile = session["username"]+"/"+filename
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], afile))
-            return redirect(url_for('uploaded_file',
-                                    filename=filename))
-    return render_template("uploadPage.html")
+            flash('File Uploaded Successfully', "success")
+            return redirect("home")
+    return render_template("home.html")
 
 
-@app.route('/uploaded_file/<filename>', methods=["GET","POST"])
+@app.route('/uploaded_file/<filename>', methods=["GET", "POST"])
 def uploaded_file(filename):
     afile = session["username"]+"/"+filename
     return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], session["username"]),
@@ -150,4 +150,4 @@ def uploaded_file(filename):
 
 if __name__ == "__main__":
     app.secret_key = "interviewbot"
-    app.run(debug=True, port=4219,threaded=True)
+    app.run(debug=True, port=4219, threaded=True)
