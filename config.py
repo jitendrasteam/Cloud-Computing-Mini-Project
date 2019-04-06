@@ -1,0 +1,5 @@
+import os
+
+S3_BUCKET="cloudstorageproject"
+S3_KEY="AKIAJ2FT7Q662IUZIVMA"
+S3_SECKET_ACCESS_KEY="4kx3RDLs8ccunnaT1ebWTPh+wLiLSTm3nE8kre7h"

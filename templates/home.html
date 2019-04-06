@@ -4,30 +4,42 @@
     padding: 5%;
     color: #ff7104;
     background: white;
+    font-size: 15px;
   }
-  .file_show a {
+  .file_show button a {
+    padding: 5%;
     color: #ff7104;
+    background: white;
   }
+ 
+
+ 
   .file_show:hover {
-    color: white;
-    padding: 6%;
-    background: #ff7104;
+    padding: 10%;
+    font-weight: bold;
+
   }
-  .file_show a:hover {
-    color: white;
-    padding: 6%;
+
+  .title_card{
+    padding:7%;
     background: #ff7104;
+    color: white;
+    font-weight: bolder
+  }
+  .s3_button{
+    padding:3%;
+    margin-right: 2%;
   }
 </style>
 <div class="container-fluid">
   <div class="row" style="height: 100%; ">
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div
         class="mh-100"
         style=" height: 620px; background-color:white;padding:2%;overflow-y:scroll;"
       >
-        <div class="card file_show">
-          File Lists Which You Uploaded
+        <div class="card title_card">
+        Files Available on our local server
         </div>
         {% for file in files %}
         <div class="card file_show">
@@ -36,21 +48,21 @@
         {% endfor %}
       </div>
     </div>
-    <div class="col-md-8">
+    <div class="col-md-6">
         <!-- Upload -->
         <div class="card shadow-lg p-3 mb-5 bg-white rounded" style="padding:3%;">
         <div class="card-title d-flex flex-row-reverse p-2">           
             <h5>Upload a new file on our cloud</h5> 
         </div>
-            <div class="card-body"> 
-            <form method=post action="/uploads" enctype=multipart/form-data>
-                <input type=file name=file>
-                <br/>
-                <br/>
-                <input type=submit class="btn btn-success  d-flex flex-row-reverse " value=Upload>
-            </form>
+        <div class="card-body"> 
+        <form method=post action="/uploads" enctype=multipart/form-data>
+            <input type=file name=file>
+            <br/>
+            <br/>
+            <input type=submit class="btn btn-success  d-flex flex-row-reverse " value=Upload>
+        </form>
         </div>
-        
+     
     </div>
             <!-- Storage and other Info-->
 
@@ -59,8 +71,10 @@
                 <div class="card shadow-lg p-3 mb-5 bg-white rounded" >
                     <div class="card-title"><b>User Info</b><hr/></div>
                         <div class="card-body">
-                            Your Username : {{session["username"]}}
+                            Your Username : {{session["username"]}}<br/><br/>
+                            You created this account on :<br/> {{ my_bucket.creation_date }}
                         </div>
+
                 </div>
             </div>
 
@@ -76,5 +90,35 @@
                 </div>
         </div>
   </div>
+  <div class="col-md-3">
+    <div
+      class="mh-100"
+      style=" height: 620px; background-color:white;padding:2%;overflow-y:scroll;"
+    >
+      <div class="card title_card">
+        Files available on Amazon AWS S3
+      </div>
+      {% for file in cloud_files %}
+        {% if file.key!=("{}/".format(session["username"])) and file.key!=("{}/.".format(session["username"]))%}
+        <div class="card file_show">
+
+        
+        <form class="download-form" action="{{ url_for('download') }}" method="POST">
+            <input type="hidden" name="key" value="{{ file.key }}">
+            <button type="submit" class="btn	text-justify s3_button">
+              {{ file.key.split('/')[1] }}
+            </button>
+          </form>
+        <form class="delete-form" action="{{ url_for('delete') }}" method="POST">
+            <input type="hidden" name="key" value="{{ file.key }}">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+      </div>
+
+        {% endif %}
+
+      {% endfor %}
+    </div>
+  </div>  
 </div>
 {% endblock %}
