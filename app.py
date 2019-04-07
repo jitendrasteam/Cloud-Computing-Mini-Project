@@ -1,5 +1,5 @@
 import os
-from flask import Flask, flash, request, redirect, url_for, render_template, session,Response
+from flask import Flask, flash, request, redirect, url_for, render_template, session,Response,abort
 from werkzeug.utils import secure_filename
 import bcrypt
 from flask import send_from_directory
@@ -20,7 +20,7 @@ UPLOAD_FOLDER = 'storage'
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-engine = create_engine("mysql+pymysql://root:root@localhost/register")
+engine = create_engine("mysql+pymysql://root:root@localhost/register",pool_size=50, max_overflow=0)
 db = scoped_session(sessionmaker(bind=engine))
 
 @app.route("/")
@@ -62,7 +62,7 @@ def register():
 			secure_password = sha256_crypt.encrypt(str(password))
 
 			if password == confirm:
-				db.execute("INSERT INTO users(name,username,password) VALUES (:name,:username,:password)", {
+				db.execute("INSERT INTO cloud_mini(name,username,password) VALUES (:name,:username,:password)", {
 						"name": name, "username": username, "password": secure_password})
 				db.commit()
 				flash("Registeration successfull , Please Login ", "success")
@@ -83,9 +83,9 @@ def login():
 	if request.method == "POST":
 		uname = request.form.get("username")
 		password = request.form.get("password")
-		userdata = db.execute("SELECT username FROM users where username=:uname", {
+		userdata = db.execute("SELECT username,admin FROM cloud_mini where username=:uname", {
 							"uname": uname}).fetchone()
-		passdata = db.execute("SELECT password FROM users where username=:uname", {
+		passdata = db.execute("SELECT password FROM cloud_mini where username=:uname", {
 							"uname": uname}).fetchone()
 
 		if userdata is None:
@@ -95,9 +95,15 @@ def login():
 			for pd in passdata:
 				if sha256_crypt.verify(password, pd):
 					session["log"] = True
+					if userdata[1]==1:
+							session["admin"]=True
 					session["username"] = userdata[0]
 					flash("Welcome back {} ".format(userdata[0]), "success")
-					return redirect(url_for("home"))
+					if "admin" in session:
+						return redirect(url_for("admin"))
+					else:
+						return redirect(url_for("home"))
+
 				else:
 					flash("Wrong password", "danger")
 					return render_template("login.html")
@@ -142,18 +148,18 @@ def delete():
 ############# DOWNLOAD #######################
 @app.route('/download', methods=['POST'])
 def download():
-    key = request.form['key']
+	key = request.form['key']
 
-    s3_resource = boto3.resource('s3')
-    my_bucket = s3_resource.Bucket(S3_BUCKET)
+	s3_resource = boto3.resource('s3')
+	my_bucket = s3_resource.Bucket(S3_BUCKET)
 
-    file_obj = my_bucket.Object(key).get()
+	file_obj = my_bucket.Object(key).get()
 
-    return Response(
-        file_obj['Body'].read(),
-        mimetype='text/plain',
-        headers={"Content-Disposition": "attachment;filename={}".format(key)}
-    )
+	return Response(
+		file_obj['Body'].read(),
+		mimetype='text/plain',
+		headers={"Content-Disposition": "attachment;filename={}".format(key)}
+	)
 
 ############     FILES   #######################
 @app.route('/uploads', methods=['GET', 'POST'])
@@ -188,6 +194,63 @@ def uploaded_file(filename):
 							filename)
 
 
+
+####################################ADMIN####################################################
+
+def toggle_permission(username,current_role):
+	toggle_role=1
+	if current_role==1:
+		toggle_role=0
+	db.execute("Update cloud_mini set admin = :toggle_role where username=:username", {
+			"toggle_role": toggle_role, "username": username})
+	db.commit()
+	
+@app.route("/admin")
+def admin():
+	if 'admin' in session:
+			return render_template("admin_panel/admin.html")
+	abort(404)
+
+@app.route("/admin_user_role")
+def admin_user_role():
+	if 'admin' in session:
+		userdata = db.execute("SELECT username,admin FROM cloud_mini").fetchall()
+		print(userdata)
+		return render_template("admin_panel/user_role.html",users=userdata)
+	abort(404)
+
+
+@app.route("/remove_admin/<username>")
+def remove_admin(username):
+		if "admin" in session:
+	
+			toggle_permission(username,1)
+			flash("{} has been removed from Admin privileage".format(username),"danger")
+			return redirect("admin_user_role")
+		abort(404)
+
+@app.route("/provide_admin/<username>")
+def provide_admin(username):
+		if "admin" in session:
+			toggle_permission(username,0)
+			flash("{} has been granted Admin privileage".format(username),"success")
+			return redirect("admin_user_role")
+		abort(404)
+
+@app.route("/admin_view_users",methods=["GET","POST"])
+def admin_view_users():
+	if 'admin' in session:
+		userdata = db.execute("SELECT username FROM cloud_mini").fetchall()
+
+		if request.method == "POST":
+			s3_resource=boto3.resource('s3')
+			my_bucket=s3_resource.Bucket(S3_BUCKET)
+			summaries = my_bucket.objects.filter(Prefix='{}/'.format(request.form.get("username")))
+			return render_template("admin_panel/user_info.html",users=userdata,files=summaries)
+
+		print(userdata)
+		return render_template("admin_panel/user_info.html",users=userdata)
+	abort(404)
 if __name__ == "__main__":
 	app.secret_key = "interviewbot"
 	app.run(debug=True, port=4221, threaded=True)

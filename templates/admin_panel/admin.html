@@ -1,0 +1,47 @@
+    {% extends "base/admin_base.html"%}
+
+    {% block admin_block %}
+    <style>
+        .back{
+            color:white;
+            background: #ff7104;
+        }
+
+    </style>
+    <div class="container">
+            <br/><br/>
+
+        <div class="card shadow-lg p-4 mb-4 bg-light">
+            <div class="card-title"><b>Admin Panel</b></div>
+            <div class="card-body">
+                    <div class="row">You Username &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;font-size:25px;font-weight:bolder;">{{session.username}}</span>
+                            <div class="col-md-12 ">
+                            <br/>
+                            <br/>
+                            <div class="card ">
+                                <div class="card-body"> <b>Present Functionality of Admin Panel</b></div>
+                            </div>
+                        </div>
+                    </div>
+                    <br/><br/>
+                    <div class="row">
+                        <div class="col-md-6 ">
+                            <div class="card back">
+                                <div class="card-body"> View User's File</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 ">
+                            <div class="card back">
+                                <div class="card-body">Manage User Access</div>
+                            </div>
+                        </div>
+                    </div>
+                
+                <br/>
+                <br/>
+                <b>More Features will be added in future.
+
+                </b></div>
+        </div>
+    </div>
+    {% endblock %}

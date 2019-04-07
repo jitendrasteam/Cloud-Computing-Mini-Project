@@ -1,0 +1,39 @@
+{% extends "base/admin_base.html"%} {% block admin_block %}
+<style>
+     
+</style>
+<br />
+<br />
+<div class="container">
+    <br/>
+  <div class="row">
+    <div class="col-md-12">
+        <br/>
+      <div class="card shadow-lg p-1 mb-2 bg-light">
+        <div class="card-body">
+          <h6>User Management</h6>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12">
+      {% for user in users%}
+
+      <div class="card shadow-lg p-1 mb-1 bg-light" style="margin:2%;">
+        <div class="card-body">
+          {{ user[0] }}
+          {% if user[1]==1 %}
+          </b>
+            <a href="/remove_admin/{{user[0]}}" class="float-right"><button class="btn btn-danger float-right">Remove Admin Privilege</button></a>
+          </button>
+          {% else %}
+    
+                <a href="/provide_admin/{{user[0]}}" class="float-right">      <button class="btn btn-success float-right">Provide Admin Privilege</button></a>         
+
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

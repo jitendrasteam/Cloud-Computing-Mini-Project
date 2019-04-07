@@ -1,0 +1,107 @@
+{% extends "layout.html"%}
+{% block body %}
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
+
+<style>
+
+body {
+overflow-x: hidden;
+}
+
+#sidebar-wrapper {
+min-height: 100vh;
+margin-left: -15rem;
+-webkit-transition: margin .25s ease-out;
+-moz-transition: margin .25s ease-out;
+-o-transition: margin .25s ease-out;
+transition: margin .25s ease-out;
+
+}
+
+#sidebar-wrapper .sidebar-heading {
+padding: 0.875rem 1.25rem;
+font-size: 1.2rem;
+}
+
+#sidebar-wrapper .list-group {
+width: 15rem;
+background:red;
+}
+
+#page-content-wrapper {
+min-width: 100vw;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+margin-left: 0;
+}
+
+@media (min-width: 768px) {
+#sidebar-wrapper {
+    margin-left: 0;
+}
+
+#page-content-wrapper {
+    min-width: 0;
+    width: 100%;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+    margin-left: -15rem;
+}
+}
+body{
+    background: #f0ecea;
+}
+.side1{
+color:black;
+background:white;
+}
+.side1container{
+color:black;
+background: white;
+}
+.center {
+display: block;
+margin-left: auto;
+margin-right: auto;
+width: 10%;
+}
+</style>
+<div class="d-flex" id="wrapper">
+
+    <!-- Sidebar -->
+    <div class="side1container border-right" id="sidebar-wrapper">
+
+    <div class="list-group list-group-flush" style="background:red;">
+        <a href="/admin" class="list-group-item list-group-item-action side1">
+            <i class="fas fa-tachometer-alt"></i>
+                    &nbsp;&nbsp;Dashboard
+        </a>
+        <a href="/admin_view_users" class="list-group-item list-group-item-action side1">
+            <i class="fas fa-user-check"></i>
+                                    &nbsp;&nbsp;View User Files
+        </a> 
+        <a href="/admin_user_role" class="list-group-item list-group-item-action side1">
+            <i class="fas fa-users-cog"></i>
+                    &nbsp;&nbsp;User Role Management
+        </a>      
+        <a href="/logout" class="list-group-item list-group-item-action side1">
+            <i class="fas fa-sign-out-alt"></i>
+            &nbsp;&nbsp;Logout
+        </a>
+
+    </div>
+    </div>
+    <!-- /#sidebar-wrapper -->
+    {% block admin_block %}
+    {% endblock %}
+
+    </div>
+    <!-- /#page-content-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+
+{% endblock %}
