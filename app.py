@@ -177,12 +177,17 @@ def upload_file():
 			return redirect("home")
 		if file and allowed_file(file.filename):
 			filename = secure_filename(file.filename)
+			
+			#s3 = boto3.resource('s3')
+			#s3.Bucket(S3_BUCKET).put_object(Key="{}/{}".format(session['username'],filename),Body=request.files['file'])
+			#s3.Object(S3_BUCKET, "{}".format(filename)).put(Body=request.files['file'])
+			s3 = boto3.resource('s3')
+			object = s3.Object(S3_BUCKET, "{}/{}".format(session['username'],filename))
+			object.put(Body=request.files['file'])
+			#flash('File Uploaded Successfully', "success")
+
 			afile = session["username"]+"/"+filename
 			file.save(os.path.join(app.config['UPLOAD_FOLDER'], afile))
-			flash('File Uploaded Successfully', "success")
-			s3 = boto3.resource('s3')
-			s3.Bucket(S3_BUCKET).put_object(Key="{}/{}".format(session['username'],filename),Body=file)
-
 			return redirect("home")
 	return render_template("home.html")
 
