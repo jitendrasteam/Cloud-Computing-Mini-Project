@@ -8,8 +8,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from passlib.hash import sha256_crypt
 import json
+from shutil import copyfile
 
-import boto3
+
+import boto3 #enables boto3
 from config import S3_BUCKET,S3_KEY,S3_SECKET_ACCESS_KEY
 
 #s3
@@ -17,11 +19,25 @@ s3=boto3.client('s3',aws_access_key_id=S3_KEY,aws_secret_access_key=S3_SECKET_AC
 
 #local server
 UPLOAD_FOLDER = 'storage'
-
+TEMP_FOLDER = 'temp'
+total_space=10
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['TEMP_FOLDER'] = TEMP_FOLDER
 engine = create_engine("mysql+pymysql://root:root@localhost/register",pool_size=50, max_overflow=0)
 db = scoped_session(sessionmaker(bind=engine))
+
+def getStorageSpace():
+	path = os.path.join(app.config['UPLOAD_FOLDER'], session["username"])
+	files = os.listdir(path)
+	folder = path
+	folder_size = 0
+	for (path, dirs, files) in os.walk(folder):
+		for file in files:
+			filename = os.path.join(path, file)
+			folder_size += os.path.getsize(filename)
+	storage_space = folder_size/(1024*1024.0)
+	return storage_space,files
 
 @app.route("/")
 def index():
@@ -34,17 +50,9 @@ def home():
 		my_bucket=s3_resource.Bucket(S3_BUCKET)
 		summaries = my_bucket.objects.filter(Prefix='{}/'.format(session["username"]))
 
-		path = os.path.join(app.config['UPLOAD_FOLDER'], session["username"])
-		files = os.listdir(path)
-		folder = path
-		folder_size = 0
-		for (path, dirs, files) in os.walk(folder):
-			for file in files:
-				filename = os.path.join(path, file)
-				folder_size += os.path.getsize(filename)
-		storage_space = folder_size/(1024*1024.0)
+		storage_space,files = getStorageSpace()
 
-		return render_template("home.html", files=files, storage_space=storage_space,cloud_files=summaries,my_bucket=my_bucket)
+		return render_template("home.html", files=files, storage_space=storage_space,cloud_files=summaries,my_bucket=my_bucket,total_space=total_space)
 	abort(404)
 
 
@@ -142,7 +150,7 @@ def delete():
 	my_bucket = s3_resource.Bucket(S3_BUCKET)
 	my_bucket.Object(key).delete()
 
-	flash('File deleted successfully')
+	flash('File deleted successfully',"danger")
 	return redirect(url_for('home'))
 
 ############# DOWNLOAD #######################
@@ -165,33 +173,65 @@ def download():
 @app.route('/uploads', methods=['GET', 'POST'])
 def upload_file():
 	if request.method == 'POST' or request.method == 'GET':
-		# check if the post request has the file part
 		if 'file' not in request.files:
 			flash('No file part', "danger")
 			return redirect(request.url)
 		file = request.files['file']
-		# if user does not select file, browser also
-		# submit an empty part without filename
 		if file.filename == '':
 			flash('No selected file', "danger")
 			return redirect("home")
 		if file and allowed_file(file.filename):
 			filename = secure_filename(file.filename)
-			
-			#s3 = boto3.resource('s3')
-			#s3.Bucket(S3_BUCKET).put_object(Key="{}/{}".format(session['username'],filename),Body=request.files['file'])
-			#s3.Object(S3_BUCKET, "{}".format(filename)).put(Body=request.files['file'])
+			f = request.files['file']
+			#saveToLocal(f,filename)
+
 			s3 = boto3.resource('s3')
 			object = s3.Object(S3_BUCKET, "{}/{}".format(session['username'],filename))
-			object.put(Body=request.files['file'])
-			#flash('File Uploaded Successfully', "success")
+			object.put(Body=f)
 
-			afile = session["username"]+"/"+filename
-			file.save(os.path.join(app.config['UPLOAD_FOLDER'], afile))
+
+			flash('File Uploaded Successfully', "success")
 			return redirect("home")
 	return render_template("home.html")
 
+@app.route('/uploads_own', methods=['GET', 'POST'])
+def upload_file_own():
+	if request.method == 'POST' or request.method == 'GET':
+		if 'file' not in request.files:
+			flash('No file part', "danger")
+			return redirect(request.url)
+		file = request.files['file']
+		if file.filename == '':
+			flash('No selected file', "danger")
+			return redirect("home")
+		if file and allowed_file(file.filename):
+			filename = secure_filename(file.filename)
+			afile = session["username"]+"/"+filename
+			f = request.files['file']
+			f.save(os.path.join("temp", filename))
+			blob=os.path.getsize(os.path.join("temp", filename))#f.read()
+			print(blob)
+			blob=(blob/(1024*1024))
+			available,_=getStorageSpace()
+			if available+blob<=total_space:
 
+				#f.save(os.path.join(app.config['UPLOAD_FOLDER'], afile))
+				src=os.path.join("temp", filename)
+				dest=os.path.join(app.config['UPLOAD_FOLDER'], afile)
+				copyfile(src,dest)
+				os.remove(src)
+
+				flash('File Uploaded Successfully', "success")
+				return redirect("home")
+			else:
+				flash('Free Tier Complete, Your Current File Upload exceeds the limit of {}'.format(total_space), "danger")
+				return redirect("home")				
+	return render_template("home.html")
+
+def saveToLocal(f,filename):
+	afile = session["username"]+"/"+filename
+	f.save(os.path.join(app.config['UPLOAD_FOLDER'], afile))
+	
 @app.route('/uploaded_file/<filename>', methods=["GET", "POST"])
 def uploaded_file(filename):
 	afile = session["username"]+"/"+filename
@@ -228,7 +268,6 @@ def admin_user_role():
 @app.route("/remove_admin/<username>")
 def remove_admin(username):
 		if "admin" in session:
-	
 			toggle_permission(username,1)
 			flash("{} has been removed from Admin privileage".format(username),"danger")
 			return redirect("admin_user_role")
@@ -258,4 +297,4 @@ def admin_view_users():
 	abort(404)
 if __name__ == "__main__":
 	app.secret_key = "interviewbot"
-	app.run(debug=True, port=4221, threaded=True)
+	app.run(debug=True, port=2011, threaded=True)
